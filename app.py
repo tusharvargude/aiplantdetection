@@ -5,7 +5,7 @@ import io
 import base64
 
 # Load Gemini API key from secrets
-genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+genai.configure(api_key=st.secrets["AIzaSyA2nUhpj8D3RWQ6ESLiPjpGWxfvQOztU4o"])
 
 # Setup model
 model = genai.GenerativeModel('gemini-pro-vision')
