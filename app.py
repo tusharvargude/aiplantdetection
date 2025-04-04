@@ -1,34 +1,37 @@
 import streamlit as st
 import google.generativeai as genai
 from PIL import Image
-import io
-import base64
+from google.generativeai.types import content_types
 
-# Load Gemini API key from secrets
+# Configure Gemini API
 genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
 
-# Setup model
-model = genai.GenerativeModel('gemini-pro-vision')
+# Set up the model
+model = genai.GenerativeModel("gemini-pro-vision")
 
-st.set_page_config(page_title="Plant Disease Detection", layout="centered")
-st.title("🌿 Plant Disease Detection using Google Gemini")
-st.markdown("Upload a leaf image to detect possible plant diseases.")
+st.set_page_config(page_title="🌿 Plant Disease Detection", layout="centered")
+st.title("🌱 Plant Disease Detection using Gemini Vision")
+st.markdown("Upload a leaf image to detect possible plant diseases using Google's Gemini Vision AI.")
 
+# Upload image
 uploaded_file = st.file_uploader("📷 Upload a leaf image", type=["jpg", "jpeg", "png"])
 
 if uploaded_file:
     image = Image.open(uploaded_file)
-    st.image(image, caption="Uploaded Leaf Image", use_column_width=True)
+    st.image(image, caption="Uploaded Image", use_column_width=True)
 
-    # Read image content
+    # Read image as bytes
     image_bytes = uploaded_file.read()
 
-    # Ask Gemini to analyze it
-    st.info("🧠 Analyzing image with Gemini...")
-    response = model.generate_content([
-        "This is an image of a plant leaf. Tell me what plant disease (if any) it has, how to cure it, and if it's healthy, say so.",
-        image_bytes
-    ])
+    # Convert to Gemini-supported image part
+    image_part = content_types.ImagePart.from_bytes(image_bytes, mime_type="image/jpeg")
 
-    st.success("✅ Analysis Result")
-    st.write(response.text)
+    prompt = "This is an image of a plant leaf. Please identify if there's any plant disease and suggest a cure. If the plant is healthy, mention that too."
+
+    try:
+        st.info("🔍 Analyzing with Gemini Vision...")
+        response = model.generate_content([prompt, image_part])
+        st.success("✅ Gemini Result:")
+        st.write(response.text)
+    except Exception as e:
+        st.error(f"Error: {e}")
